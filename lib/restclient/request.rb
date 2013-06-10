@@ -110,6 +110,7 @@ module RestClient
       else
         raise ArgumentError, "must pass :url"
       end
+      @proxy = args[:proxy]
       @cookies = @headers.delete(:cookies) || args[:cookies] || {}
       @payload = Payload.generate(args[:payload])
       @user = args[:user]
@@ -188,6 +189,10 @@ module RestClient
       end
     end
 
+    def proxy
+      @proxy || RestClient.proxy
+    end
+
     # Extract the query parameters and append them to the url
     def process_url_params url, headers
       url_params = {}
@@ -250,8 +255,8 @@ module RestClient
     end
 
     def net_http_class
-      if RestClient.proxy
-        proxy_uri = URI.parse(RestClient.proxy)
+      if proxy
+        proxy_uri = URI.parse(proxy)
         Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
       else
         Net::HTTP
